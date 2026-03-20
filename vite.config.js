@@ -55,6 +55,7 @@ export default defineConfig({
         features: resolve(__dirname, "docs-src/features/index.html"),
         usage: resolve(__dirname, "docs-src/usage/index.html"),
         output_page: resolve(__dirname, "docs-src/output/index.html"),
+        faq: resolve(__dirname, "docs-src/faq/index.html"),
       },
     },
   },

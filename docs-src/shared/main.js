@@ -16,7 +16,8 @@ function injectNav() {
   const isFeatures = path.includes("/features");
   const isUsage = path.includes("/usage");
   const isOutput = path.includes("/output");
-  const isOverview = !isFeatures && !isUsage && !isOutput;
+  const isFaq = path.includes("/faq");
+  const isOverview = !isFeatures && !isUsage && !isOutput && !isFaq;
 
   el.innerHTML = `
     <div class="nav-inner">
@@ -30,6 +31,7 @@ function injectNav() {
         <a href="/docs/features/" class="${isFeatures ? "active" : ""}">Features</a>
         <a href="/docs/usage/"    class="${isUsage ? "active" : ""}">Usage</a>
         <a href="/docs/output/"   class="${isOutput ? "active" : ""}">Output</a>
+        <a href="/docs/faq/"      class="${isFaq ? "active" : ""}">FAQ</a>
       </nav>
       <div class="nav-actions">
         <div class="theme-toggle">

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ — SES DKIM → Cloudflare Docs</title>
+    <meta
+      name="description"
+      content="Frequently asked questions about SES DKIM → Cloudflare — privacy, DKIM verification, errors, and more."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://ses-dkim-to-cloudflare.pages.dev/docs/faq/" />
+    <meta property="og:title" content="FAQ — SES DKIM → Cloudflare Docs" />
+    <meta property="og:description" content="Frequently asked questions about SES DKIM → Cloudflare." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ses-dkim-to-cloudflare.pages.dev/docs/faq/" />
+    <!-- @include _partials/shared-head.html -->
+    <script type="module" src="/shared/main.js"></script>
+    <style>
+      .faq-list {
+        margin-top: 32px;
+      }
+
+      .faq-item {
+        border-bottom: 1px solid var(--border);
+        padding: 24px 0;
+      }
+
+      .faq-item:first-child {
+        padding-top: 0;
+      }
+      .faq-item:last-child {
+        border-bottom: none;
+      }
+
+      .faq-q {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 10px;
+        letter-spacing: -0.01em;
+      }
+
+      .faq-a {
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.75;
+        color: var(--muted);
+      }
+
+      .faq-a code {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 1px 6px;
+        border-radius: 2px;
+        font-size: 12px;
+        color: var(--code-text);
+      }
+
+      .faq-a a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .faq-a a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- @include _partials/nav.html -->
+
+    <main class="page">
+      <section class="hero">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          FAQ
+        </div>
+        <h1 class="hero-title">
+          Frequently asked
+          <br />
+          <span>questions</span>
+        </h1>
+        <p class="hero-sub">Quick answers to the most common questions.</p>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">Privacy &amp; Security</p>
+        <h2 class="section-title">Your data</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-q">Does my CSV file get uploaded anywhere?</div>
+            <div class="faq-a">
+              No. The file never leaves your browser. It is read using the JavaScript File API and processed entirely
+              client-side. There is no server, no backend, and no network request is made with your data.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Is this tool affiliated with AWS or Cloudflare?</div>
+            <div class="faq-a">
+              No. This is an independent open source tool built to bridge a gap between two services. It has no official
+              relationship with Amazon Web Services or Cloudflare.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Is it open source?</div>
+            <div class="faq-a">
+              Yes. The source code is available on
+              <a href="https://github.com/faizananwerali/ses-dkim-to-cloudflare" target="_blank" rel="noopener">
+                GitHub
+              </a>
+              under the
+              <a
+                href="https://github.com/faizananwerali/ses-dkim-to-cloudflare/blob/main/LICENSE"
+                target="_blank"
+                rel="noopener"
+              >
+                MIT License
+              </a>
+              .
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">Using the Tool</p>
+        <h2 class="section-title">Common questions</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-q">Where do I find the CSV in AWS SES?</div>
+            <div class="faq-a">
+              Go to
+              <strong>SES → Configuration → Identities</strong>
+              , select your domain, open the
+              <strong>Authentication</strong>
+              tab, scroll to
+              <strong>DomainKeys Identified Mail (DKIM) → Publish DNS records</strong>
+              , and click
+              <strong>Download .csv record set</strong>
+              . This works whether the domain is already verified or newly added.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">The tool shows an error about missing columns. What's wrong?</div>
+            <div class="faq-a">
+              The CSV must have a header row with exactly three columns:
+              <code>Type</code>
+              ,
+              <code>Name</code>
+              , and
+              <code>Value</code>
+              (case-insensitive). If you opened and re-saved the CSV in Excel or Numbers, the file may have been
+              reformatted. Try re-downloading it directly from the AWS console.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">The filename says "example.com" instead of my domain. Why?</div>
+            <div class="faq-a">
+              The tool detects your domain from the
+              <code>Name</code>
+              column by stripping the
+              <code>_domainkey</code>
+              subdomain prefix. If your CSV has an unexpected format in that column, detection may fall back to a
+              placeholder. The zone file content is still correct — you can rename the downloaded file manually.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Can I use this for DNS records other than SES DKIM?</div>
+            <div class="faq-a">
+              Yes. The tool works with any CSV that has
+              <code>Type</code>
+              ,
+              <code>Name</code>
+              , and
+              <code>Value</code>
+              columns. It does not filter by record type — CNAME, TXT, MX, and others are all passed through.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">What if my CSV has records for multiple domains?</div>
+            <div class="faq-a">
+              All records are included in the output. The domain shown in the zone file header comment is taken from the
+              first record. You can split the output manually if needed.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">After Import</p>
+        <h2 class="section-title">Verification &amp; DNS</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-q">I imported the zone file but DKIM isn't verified in SES yet. What now?</div>
+            <div class="faq-a">
+              DNS propagation takes time. AWS SES checks periodically and can take anywhere from a few minutes to 72
+              hours to detect new records. You don't need to do anything — just wait. You can monitor the status under
+              <strong>SES → Configuration → Identities → Authentication tab</strong>
+              .
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Why is TTL set to 1 in the zone file?</div>
+            <div class="faq-a">
+              <code>1</code>
+              is Cloudflare's magic value for automatic TTL. After import, Cloudflare replaces it with its own default
+              (usually 300s or "Auto"). You can change it manually in the DNS panel after import if needed.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Cloudflare says some records already exist on import. What do I do?</div>
+            <div class="faq-a">
+              Cloudflare will skip duplicates and warn you. This is safe — it just means those records were already in
+              your zone. Review the import preview and confirm.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="page-nav">
+        <a href="/docs/output/" class="btn-ghost">← Output Format</a>
+        <a href="/" class="btn-primary">Open the Tool ↗</a>
+      </div>
+    </main>
+
+    <!-- @include _partials/footer.html -->
+  </body>
+</html>
