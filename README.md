@@ -2,7 +2,7 @@
 
 A single-file browser tool that converts an AWS SES identity CSV into a Cloudflare-importable DNS zone file.
 
-No install. No build. No dependencies. Open the HTML file in a browser and you're done.
+No install. No build. No dependencies. Use it live at **https://ses-dkim-to-cloudflare.pages.dev** or download the repo and open `index.html` directly in any browser.
 
 **Live:** https://ses-dkim-to-cloudflare.pages.dev/
 **Docs:** https://ses-dkim-to-cloudflare.pages.dev/docs/
@@ -16,7 +16,7 @@ AWS SES gives you a CSV when you verify a domain. Cloudflare's DNS import expect
 ## Usage
 
 1. In AWS Console: **SES → Configuration → Identities → your domain → Authentication tab → Publish DNS records → Download .csv record set**
-2. Open `index.html` in any browser
+2. Open **https://ses-dkim-to-cloudflare.pages.dev** — or download this repo and open `index.html` in any browser if you prefer to run it locally
 3. Drop the CSV onto the page
 4. Download the generated `.txt` zone file
 5. In Cloudflare: **DNS → Import DNS Records → upload the `.txt` file**
