@@ -16,7 +16,7 @@ AWS SES gives you a CSV when you verify a domain. Cloudflare's DNS import expect
 ## Usage
 
 1. In AWS Console: **SES → Configuration → Identities → your domain → Authentication tab → Publish DNS records → Download .csv record set**
-2. Open **https://ses-dkim-to-cloudflare.pages.dev** — or download this repo and open `index.html` in any browser if you prefer to run it locally
+2. Open **[SES DKIM → Cloudflare](https://ses-dkim-to-cloudflare.pages.dev)** — or download this repo and open `index.html` in any browser if you prefer to run it locally
 3. Drop the CSV onto the page
 4. Download the generated `.txt` zone file
 5. In Cloudflare: **DNS → Import DNS Records → upload the `.txt` file**
