@@ -19,3 +19,8 @@ npm-debug.log*
 # Env
 .env
 .env.*
+
+# Vite
+.vite/
+
+docs/

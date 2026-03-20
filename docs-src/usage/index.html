@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Usage Guide — SES DKIM → Cloudflare Docs</title>
+    <meta name="description" content="Step-by-step usage guide and CSV format reference for SES DKIM → Cloudflare." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://ses-dkim-to-cloudflare.pages.dev/docs/usage/" />
+    <meta property="og:title" content="Usage Guide — SES DKIM → Cloudflare Docs" />
+    <meta property="og:description" content="Step-by-step guide and CSV format reference." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ses-dkim-to-cloudflare.pages.dev/docs/usage/" />
+    <!-- @include _partials/shared-head.html -->
+    <script type="module" src="/shared/main.js"></script>
+  </head>
+  <body>
+    <!-- @include _partials/nav.html -->
+
+    <main class="page">
+      <section class="hero">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Usage Guide
+        </div>
+        <h1 class="hero-title">Using the tool</h1>
+        <p class="hero-sub">
+          From downloading your CSV out of AWS to importing the zone file into Cloudflare — here's everything you need.
+        </p>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">Step by step</p>
+        <h2 class="section-title">How to use it</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <div class="step-title">Export DNS records from AWS SES</div>
+              <div class="step-desc">
+                In the AWS Console, go to
+                <strong>Amazon SES → Configuration → Identities</strong>
+                and select your domain. Open the
+                <strong>Authentication</strong>
+                tab, scroll to the
+                <strong>DomainKeys Identified Mail (DKIM)</strong>
+                section, and expand
+                <strong>Publish DNS records</strong>
+                . Click
+                <strong>Download .csv record set</strong>
+                at the bottom of that section.
+                <br />
+                <br />
+                This works the same whether the domain is already verified or newly added.
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <div class="step-title">Load the CSV</div>
+              <div class="step-desc">
+                Open the tool at
+                <a href="/" style="color: var(--accent); text-decoration: none">ses-dkim-to-cloudflare.pages.dev</a>
+                . Drag and drop your CSV onto the dropzone, or click it to browse.
+                <br />
+                <br />
+                Once loaded, the dropzone border turns green and shows the filename. The tool parses the file
+                immediately — no button press needed.
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <div class="step-title">Review the parsed records</div>
+              <div class="step-desc">
+                A table appears showing all parsed DNS records grouped by type with a count chip per group. Verify the
+                detected domain matches your SES identity. Any validation errors appear as a red status bar above the
+                table.
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <div class="step-title">Download the zone file</div>
+              <div class="step-desc">
+                Click
+                <strong>Download Zone File</strong>
+                . The file saves as
+                <code>cloudflare-dns-import-[your-domain].txt</code>
+                — a BIND-format zone file ready to import into Cloudflare.
+                <br />
+                <br />
+                To load a different file, click
+                <strong>Change file</strong>
+                inside the dropzone.
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">05</div>
+            <div class="step-body">
+              <div class="step-title">Import into Cloudflare</div>
+              <div class="step-desc">
+                In the Cloudflare dashboard, select your domain, go to
+                <strong>DNS → Records</strong>
+                , and click
+                <strong>Import DNS records</strong>
+                . Upload the
+                <code>.txt</code>
+                file — Cloudflare will preview records before confirming. See the
+                <a href="/docs/output/" style="color: var(--accent); text-decoration: none">Output page</a>
+                for a full import walkthrough.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">CSV Format</p>
+        <h2 class="section-title">Expected input format</h2>
+        <p class="section-desc">
+          The tool expects the standard AWS SES DNS records CSV — a header row with these three columns in any order:
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Required</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Type</code></td>
+                <td><span class="type-chip">Yes</span></td>
+                <td class="muted">
+                  DNS record type — e.g.
+                  <code>CNAME</code>
+                  ,
+                  <code>TXT</code>
+                  ,
+                  <code>MX</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>Name</code></td>
+                <td><span class="type-chip">Yes</span></td>
+                <td class="muted">
+                  Fully-qualified record name — e.g.
+                  <code>abc123._domainkey.example.com</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>Value</code></td>
+                <td><span class="type-chip">Yes</span></td>
+                <td class="muted">
+                  Record value or target — e.g.
+                  <code>abc123.dkim.amazonses.com</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="section-desc" style="margin-top: 20px">A sample file:</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-title">dkim-dns-records.csv</span>
+            <span class="code-block-tag">CSV</span>
+          </div>
+          <pre>
+Type,Name,Value
+CNAME,zey4t3k72nvkphf3xtxycmlpbd2mrylz._domainkey.example.com,zey4t3k72nvkphf3xtxycmlpbd2mrylz.dkim.amazonses.com
+CNAME,2wozuadye6pgxp5pvr7ov6gkvqikt6ca._domainkey.example.com,2wozuadye6pgxp5pvr7ov6gkvqikt6ca.dkim.amazonses.com
+CNAME,zvtgr4yut5ntwyzsrzhy7ztbfa4ewdlo._domainkey.example.com,zvtgr4yut5ntwyzsrzhy7ztbfa4ewdlo.dkim.amazonses.com</pre
+          >
+        </div>
+
+        <div class="callout">
+          <div class="callout-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <div class="callout-text">
+            <strong>Domain detection</strong>
+            works by extracting the domain from the
+            <code>Name</code>
+            column — it strips the
+            <code>_domainkey</code>
+            prefix to find the root domain (e.g.
+            <code>example.com</code>
+            ).
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">Validation</p>
+        <h2 class="section-title">Errors and edge cases</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Behaviour</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  Missing required column (
+                  <code>Type</code>
+                  ,
+                  <code>Name</code>
+                  , or
+                  <code>Value</code>
+                  )
+                </td>
+                <td class="muted">Red error banner shown. No output generated.</td>
+              </tr>
+              <tr>
+                <td>Empty file or no data rows</td>
+                <td class="muted">Error shown — "no records found".</td>
+              </tr>
+              <tr>
+                <td>Unrecognised record types</td>
+                <td class="muted">Passed through as-is — the tool does not filter by type.</td>
+              </tr>
+              <tr>
+                <td>Extra columns in the CSV</td>
+                <td class="muted">
+                  Ignored. Only
+                  <code>Type</code>
+                  ,
+                  <code>Name</code>
+                  , and
+                  <code>Value</code>
+                  are used.
+                </td>
+              </tr>
+              <tr>
+                <td>Records from multiple domains</td>
+                <td class="muted">All included. Domain in header taken from the first record.</td>
+              </tr>
+              <tr>
+                <td>Non-CSV file dropped</td>
+                <td class="muted">
+                  Parse error shown. Only
+                  <code>.csv</code>
+                  files are expected.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="page-nav">
+        <a href="/docs/features/" class="btn-ghost">← Features</a>
+        <a href="/docs/output/" class="btn-ghost">Output Format →</a>
+      </div>
+    </main>
+
+    <!-- @include _partials/footer.html -->
+  </body>
+</html>

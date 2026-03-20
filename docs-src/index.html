@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview — SES DKIM → Cloudflare Docs</title>
+    <meta
+      name="description"
+      content="Documentation for SES DKIM → Cloudflare — a zero-dependency browser tool that converts AWS SES identity CSV files into Cloudflare-importable DNS zone files."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://ses-dkim-to-cloudflare.pages.dev/docs/" />
+    <meta property="og:title" content="Docs — SES DKIM → Cloudflare" />
+    <meta
+      property="og:description"
+      content="A zero-dependency browser tool that converts AWS SES DKIM CSV files into Cloudflare zone files."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ses-dkim-to-cloudflare.pages.dev/docs/" />
+    <!-- @include _partials/shared-head.html -->
+    <script type="module" src="/shared/main.js"></script>
+  </head>
+  <body>
+    <!-- @include _partials/nav.html -->
+
+    <main class="page">
+      <section class="hero">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Documentation
+        </div>
+        <h1 class="hero-title">
+          SES DKIM
+          <br />
+          <span>→ Cloudflare</span>
+        </h1>
+        <p class="hero-sub">
+          A zero-dependency browser tool that converts your AWS SES identity CSV into a Cloudflare-importable DNS zone
+          file. No install, no build, no server — 100% local.
+        </p>
+        <div class="hero-actions">
+          <a href="/" class="btn-primary">Open the Tool ↗</a>
+          <a href="/docs/features/" class="btn-ghost">Features &amp; Screenshots →</a>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">What it does</p>
+        <h2 class="section-title">From CSV to zone file in seconds</h2>
+        <p class="section-desc">
+          When you verify a domain in AWS SES, Amazon gives you DKIM DNS records to add to your DNS. You can export them
+          as a CSV. This tool reads that CSV and converts it into a BIND-format zone file — the exact format
+          Cloudflare's DNS import accepts.
+        </p>
+        <p class="section-desc" style="margin-top: 12px">
+          Drop the CSV. Get the zone file. Import into Cloudflare. Done.
+        </p>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">How it works</p>
+        <h2 class="section-title">Three steps</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <div class="step-title">Export from AWS SES</div>
+              <div class="step-desc">
+                In the AWS Console, go to
+                <strong>SES → Configuration → Identities</strong>
+                , select your domain, open the
+                <strong>Authentication</strong>
+                tab, and click
+                <strong>Download .csv record set</strong>
+                under
+                <strong>Publish DNS records</strong>
+                .
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <div class="step-title">Drop the CSV</div>
+              <div class="step-desc">
+                Open the tool and drag your CSV onto the dropzone, or click to browse. The file is parsed instantly in
+                your browser — no upload involved.
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <div class="step-title">Download and import</div>
+              <div class="step-desc">
+                Review the parsed records, click
+                <strong>Download Zone File</strong>
+                , then import the
+                <code>.txt</code>
+                file directly in Cloudflare DNS → Records → Import.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="callout" style="margin-top: 48px">
+        <div class="callout-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+        <div class="callout-text">
+          <strong>Privacy first.</strong>
+          Your CSV is processed entirely in your browser using the JavaScript File API. Nothing is uploaded to any
+          server. The tool has no backend.
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <span></span>
+        <a href="/docs/features/" class="btn-ghost">Features &amp; Screenshots →</a>
+      </div>
+    </main>
+
+    <!-- @include _partials/footer.html -->
+  </body>
+</html>

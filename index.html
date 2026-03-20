@@ -776,6 +776,29 @@
       <header>
         <div class="header-top">
           <img src="logos/logo.svg" alt="SES DKIM to Cloudflare" style="height: 48px; display: block" />
+          <a
+            href="/docs/"
+            style="
+              font-family: var(--mono);
+              font-size: 12px;
+              color: var(--muted);
+              text-decoration: none;
+              padding: 5px 12px;
+              border: 1px solid var(--border-bright);
+              border-radius: 3px;
+              transition: all 0.15s;
+            "
+            onmouseover="
+              this.style.color = 'var(--text)';
+              this.style.borderColor = 'var(--muted)';
+            "
+            onmouseout="
+              this.style.color = 'var(--muted)';
+              this.style.borderColor = 'var(--border-bright)';
+            "
+          >
+            Docs
+          </a>
           <div class="theme-toggle" id="themeToggle" title="Toggle theme">
             <button class="theme-btn" data-theme-val="system" title="System"><i data-lucide="monitor"></i></button>
             <button class="theme-btn" data-theme-val="light" title="Light"><i data-lucide="sun"></i></button>

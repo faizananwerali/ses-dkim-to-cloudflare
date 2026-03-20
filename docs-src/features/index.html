@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Features — SES DKIM → Cloudflare Docs</title>
+    <meta
+      name="description"
+      content="Features and screenshots of SES DKIM → Cloudflare — theme toggle, domain detection, dropzone feedback, BIND zone file output and more."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://ses-dkim-to-cloudflare.pages.dev/docs/features/" />
+    <meta property="og:title" content="Features — SES DKIM → Cloudflare Docs" />
+    <meta property="og:description" content="Features and screenshots of the SES DKIM → Cloudflare tool." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ses-dkim-to-cloudflare.pages.dev/docs/features/" />
+    <!-- @include _partials/shared-head.html -->
+    <script type="module" src="/shared/main.js"></script>
+    <script type="module">
+      import screenshots from "virtual:screenshots";
+
+      const LABELS = {
+        "01.png": "Light theme",
+        "02.png": "Dark theme",
+        "banner-compressed.png": "Banner (compressed)",
+        "banner-image.png": "Banner (full)",
+        "banner-resized-compressed.png": "Banner (resized)",
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const gallery = document.getElementById("screenshot-gallery");
+        if (!gallery || !screenshots.length) return;
+
+        screenshots.forEach((filename) => {
+          const label = LABELS[filename] ?? filename.replace(/\.[^.]+$/, "").replace(/-/g, " ");
+          const item = document.createElement("div");
+          item.className = "gallery-item";
+          item.innerHTML = `
+            <div class="gallery-img-wrap">
+              <img src="/screenshots/${filename}" alt="${label}" loading="lazy" />
+            </div>
+            <div class="gallery-label">${label}</div>
+          `;
+          item.querySelector("img").addEventListener("click", () => openLightbox(`/screenshots/${filename}`, label));
+          gallery.appendChild(item);
+        });
+
+        // Lightbox
+        const lb = document.getElementById("lightbox");
+        lb.addEventListener("click", (e) => {
+          if (e.target === lb || e.target.classList.contains("lb-close")) closeLightbox();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeLightbox();
+        });
+      });
+
+      function openLightbox(src, label) {
+        const lb = document.getElementById("lightbox");
+        lb.querySelector("img").src = src;
+        lb.querySelector(".lb-label").textContent = label;
+        lb.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeLightbox() {
+        const lb = document.getElementById("lightbox");
+        lb.classList.remove("open");
+        lb.querySelector("img").src = "";
+        document.body.style.overflow = "";
+      }
+    </script>
+    <style>
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 20px;
+        margin-top: 24px;
+      }
+      .gallery-item {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .gallery-img-wrap {
+        border: 1px solid var(--border-bright);
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--surface);
+        cursor: zoom-in;
+        transition: border-color 0.15s;
+      }
+      .gallery-img-wrap:hover {
+        border-color: var(--accent);
+      }
+      .gallery-img-wrap img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: opacity 0.2s;
+      }
+      .gallery-img-wrap:hover img {
+        opacity: 0.9;
+      }
+      .gallery-label {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        text-transform: capitalize;
+        letter-spacing: 0.03em;
+      }
+      #lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.88);
+        z-index: 200;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 16px;
+        padding: 24px;
+        cursor: zoom-out;
+      }
+      #lightbox.open {
+        display: flex;
+      }
+      #lightbox img {
+        max-width: 100%;
+        max-height: 85vh;
+        object-fit: contain;
+        border-radius: 4px;
+        box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+        cursor: default;
+      }
+      .lb-label {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: capitalize;
+      }
+      .lb-close {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.6);
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 4px 12px;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .lb-close:hover {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      @media (max-width: 640px) {
+        .gallery {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- @include _partials/nav.html -->
+
+    <main class="page">
+      <section class="hero">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Features
+        </div>
+        <h1 class="hero-title">What's included</h1>
+        <p class="hero-sub">Everything the tool does — and what it looks like in both themes.</p>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">Capabilities</p>
+        <h2 class="section-title">Features at a glance</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </div>
+            <div class="feature-title">Zero Upload</div>
+            <div class="feature-desc">
+              Your CSV never leaves your browser. All parsing happens locally using the File API. Nothing is sent to any
+              server.
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path
+                  d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                />
+              </svg>
+            </div>
+            <div class="feature-title">Domain Detection</div>
+            <div class="feature-desc">
+              The tool reads your domain from the CSV and uses it in the output filename and zone file header comment.
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+            </div>
+            <div class="feature-title">BIND / RFC 1035 Format</div>
+            <div class="feature-desc">
+              Output is a standards-compliant zone file Cloudflare's DNS import accepts directly. TTL is set to
+              <code>1</code>
+              (Cloudflare auto TTL).
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path
+                  d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+                />
+              </svg>
+            </div>
+            <div class="feature-title">Theme Support</div>
+            <div class="feature-desc">
+              System, light, and dark mode — persisted to
+              <code>localStorage</code>
+              . No flash on load.
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 17 12 22 22 17" />
+                <polyline points="2 12 12 17 22 12" />
+              </svg>
+            </div>
+            <div class="feature-title">Records Preview</div>
+            <div class="feature-desc">
+              Parsed records shown in a table before download — grouped by type with a count chip.
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </div>
+            <div class="feature-title">Smart Filename</div>
+            <div class="feature-desc">
+              Downloaded as
+              <code>cloudflare-dns-import-[domain].txt</code>
+              — no manual renaming needed.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
+        <p class="section-label">Screenshots</p>
+        <h2 class="section-title">All screenshots</h2>
+        <p class="section-desc">Click any image to view full size.</p>
+        <div id="screenshot-gallery" class="gallery"></div>
+      </section>
+
+      <div class="page-nav">
+        <a href="/docs/" class="btn-ghost">← Overview</a>
+        <a href="/docs/usage/" class="btn-ghost">Usage Guide →</a>
+      </div>
+    </main>
+
+    <div id="lightbox">
+      <button class="lb-close">ESC to close</button>
+      <img src="" alt="" />
+      <span class="lb-label"></span>
+    </div>
+
+    <!-- @include _partials/footer.html -->
+  </body>
+</html>
