@@ -6,7 +6,7 @@ No install. No build. No dependencies. Open the HTML file in a browser and you'r
 
 **Live:** https://ses-dkim-to-cloudflare.pages.dev/
 
-![Screenshot](screenshots/01.png)
+![Banner](screenshots/banner-compressed.png)
 
 ## Why
 
@@ -41,6 +41,14 @@ If the CSV is missing required columns, has unrecognised record types, or contai
 - Wraps TXT values in quotes if not already quoted
 - Groups records by type in the output
 - Sets TTL to `1` (Cloudflare's automatic TTL)
+
+## Other things the UI does
+
+- Theme toggle — system, light, and dark mode, saved to `localStorage`
+- Detects your domain from the CSV and shows it as a banner
+- Downloaded filename includes the domain (e.g. `cloudflare-dns-import-example.com.txt`)
+- Dropzone updates after a file is loaded so you know something actually happened
+- Clear button to reset everything without refreshing
 
 ## Everything runs in your browser
 

@@ -1,0 +1,24 @@
+{
+  "name": "ses-dkim-to-cloudflare",
+  "version": "1.0.0",
+  "description": "A single-file browser tool that converts an AWS SES identity CSV into a Cloudflare-importable DNS zone file.",
+  "main": "index.js",
+  "scripts": {
+    "format": "prettier --write \"**/*.{html,css,js}\"",
+    "format:check": "prettier --check \"**/*.{html,css,js}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faizananwerali/ses-dkim-to-cloudflare.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/faizananwerali/ses-dkim-to-cloudflare/issues"
+  },
+  "homepage": "https://github.com/faizananwerali/ses-dkim-to-cloudflare#readme",
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
+}

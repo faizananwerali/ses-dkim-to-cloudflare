@@ -1,644 +1,1172 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SES DKIM → Cloudflare</title>
-<link rel="icon" type="image/svg+xml" href="logos/logo.svg">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SES DKIM → Cloudflare | Free DNS Zone File Converter</title>
 
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --border: #1e1e2e;
-    --border-bright: #2e2e4e;
-    --accent: #f97316;
-    --accent2: #fb923c;
-    --text: #e8e8f0;
-    --muted: #6b6b8a;
-    --success: #22c55e;
-    --error: #ef4444;
-    --mono: 'IBM Plex Mono', monospace;
-    --head: 'Syne', sans-serif;
-  }
+    <!-- SEO -->
+    <meta
+      name="description"
+      content="Free browser-based tool to convert AWS SES DKIM identity CSV files into Cloudflare-importable DNS zone files. No upload, no server — 100% local."
+    />
+    <meta
+      name="keywords"
+      content="SES DKIM, Cloudflare DNS, zone file converter, AWS SES, DKIM records, DNS import, Cloudflare zone file, CNAME DNS"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="faizananwerali" />
+    <link rel="canonical" href="https://ses-dkim-to-cloudflare.pages.dev/" />
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--head);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 48px 24px 80px;
-    overflow-x: hidden;
-  }
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="SES DKIM → Cloudflare" />
+    <meta property="og:title" content="SES DKIM → Cloudflare | Free DNS Zone File Converter" />
+    <meta
+      property="og:description"
+      content="Free browser-based tool to convert AWS SES DKIM identity CSV files into Cloudflare-importable DNS zone files. No upload, no server — 100% local."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ses-dkim-to-cloudflare.pages.dev/" />
+    <meta
+      property="og:image"
+      content="https://ses-dkim-to-cloudflare.pages.dev/screenshots/banner-resized-compressed.png"
+    />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="SES DKIM to Cloudflare – DNS Zone File Converter" />
+    <meta property="og:locale" content="en_US" />
 
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(249,115,22,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(249,115,22,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SES DKIM → Cloudflare | Free DNS Zone File Converter" />
+    <meta
+      name="twitter:description"
+      content="Free browser-based tool to convert AWS SES DKIM identity CSV files into Cloudflare-importable DNS zone files. No upload, no server — 100% local."
+    />
+    <meta
+      name="twitter:image"
+      content="https://ses-dkim-to-cloudflare.pages.dev/screenshots/banner-resized-compressed.png"
+    />
 
-  .container {
-    width: 100%;
-    max-width: 760px;
-    position: relative;
-    z-index: 1;
-  }
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="logos/logo.svg" />
 
-  header {
-    margin-bottom: 48px;
-  }
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(249,115,22,0.12);
-    border: 1px solid rgba(249,115,22,0.3);
-    color: var(--accent);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 4px 12px;
-    border-radius: 2px;
-    margin-bottom: 16px;
-  }
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-  h1 {
-    font-size: clamp(32px, 6vw, 52px);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
+      :root {
+        /* Base */
+        --bg: #0a0a0f;
+        --surface: #111118;
+        --border: #1e1e2e;
+        --border-bright: #2e2e4e;
+        --accent: #f97316;
+        --accent2: #fb923c;
+        --text: #e8e8f0;
+        --muted: #6b6b8a;
+        --success: #22c55e;
+        --error: #ef4444;
+        --mono: "IBM Plex Mono", monospace;
+        --head: "Syne", sans-serif;
+        --on-accent: #000;
 
-  h1 span {
-    color: var(--accent);
-  }
+        /* Accent alpha scale */
+        --accent-grid: rgba(249, 115, 22, 0.03);
+        --accent-glow: rgba(249, 115, 22, 0.06);
+        --accent-hover: rgba(249, 115, 22, 0.08);
+        --accent-subtle: rgba(249, 115, 22, 0.12);
+        --accent-emphasis: rgba(249, 115, 22, 0.15);
+        --accent-border-subtle: rgba(249, 115, 22, 0.25);
+        --accent-border: rgba(249, 115, 22, 0.3);
+        --accent-border-strong: rgba(249, 115, 22, 0.35);
+        --accent-shadow: rgba(249, 115, 22, 0.35);
 
-  .subtitle {
-    margin-top: 12px;
-    color: var(--muted);
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.6;
-    font-family: var(--mono);
-  }
+        /* Success alpha */
+        --success-glow: rgba(34, 197, 94, 0.06);
+        --success-bg: rgba(34, 197, 94, 0.08);
+        --success-border: rgba(34, 197, 94, 0.25);
 
-  /* Drop zone */
-  .drop-zone {
-    border: 2px dashed var(--border-bright);
-    border-radius: 4px;
-    padding: 56px 32px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: var(--surface);
-    position: relative;
-    overflow: hidden;
-  }
+        /* Error alpha */
+        --error-bg: rgba(239, 68, 68, 0.08);
+        --error-border: rgba(239, 68, 68, 0.25);
+        --error-border-strong: rgba(239, 68, 68, 0.35);
 
-  .drop-zone::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.06) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
+        /* Component-specific */
+        --code-text: #a0a0c0;
+        --surface-hover: rgba(255, 255, 255, 0.03);
+        --drop-active-bg: var(--surface);
+      }
 
-  .drop-zone:hover::before,
-  .drop-zone.dragging::before {
-    opacity: 1;
-  }
+      [data-theme="light"] {
+        --bg: #f4f4f8;
+        --surface: #ffffff;
+        --border: #dddde8;
+        --border-bright: #c4c4d8;
+        --text: #1a1a2e;
+        --muted: #7070a0;
+        --code-text: #4a4a7a;
+        --surface-hover: rgba(0, 0, 0, 0.03);
+        --drop-active-bg: #fafafa;
+      }
 
-  .drop-zone:hover,
-  .drop-zone.dragging {
-    border-color: var(--accent);
-    background: #13131e;
-  }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--head);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 48px 24px 80px;
+        overflow-x: hidden;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
 
-  .drop-icon {
-    font-size: 40px;
-    margin-bottom: 16px;
-    display: block;
-    filter: grayscale(0.3);
-    transition: transform 0.2s;
-  }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--accent-grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--accent-grid) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        z-index: 0;
+      }
 
-  .drop-zone:hover .drop-icon,
-  .drop-zone.dragging .drop-icon {
-    transform: translateY(-4px);
-  }
+      .container {
+        width: 100%;
+        max-width: 760px;
+        position: relative;
+        z-index: 1;
+      }
 
-  .drop-label {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 8px;
-  }
+      header {
+        margin-bottom: 48px;
+      }
 
-  .drop-sub {
-    font-size: 13px;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
+      .header-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
 
-  .drop-sub strong {
-    color: var(--accent);
-  }
+      /* ── Lucide icon base ── */
+      svg.lucide {
+        display: inline-block;
+        vertical-align: middle;
+        flex-shrink: 0;
+      }
 
-  #fileInput { display: none; }
+      /* ── Theme toggle ── */
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        background: var(--surface);
+        border: 1px solid var(--border-bright);
+        border-radius: 3px;
+        overflow: hidden;
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
 
-  /* Status / validation */
-  .status-bar {
-    display: none;
-    margin-top: 16px;
-    padding: 12px 16px;
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-size: 13px;
-    gap: 10px;
-    align-items: flex-start;
-  }
+      .theme-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 7px 10px;
+        color: var(--muted);
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-  .status-bar.show { display: flex; }
+      .theme-btn svg {
+        width: 15px;
+        height: 15px;
+      }
+      .theme-btn:hover {
+        background: var(--accent-hover);
+        color: var(--text);
+      }
+      .theme-btn.active {
+        background: var(--accent-emphasis);
+        color: var(--accent);
+      }
 
-  .status-bar.ok {
-    background: rgba(34,197,94,0.08);
-    border: 1px solid rgba(34,197,94,0.25);
-    color: var(--success);
-  }
+      /* ── Badge ── */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--accent-subtle);
+        border: 1px solid var(--accent-border);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 2px;
+        margin-bottom: 16px;
+      }
 
-  .status-bar.err {
-    background: rgba(239,68,68,0.08);
-    border: 1px solid rgba(239,68,68,0.25);
-    color: var(--error);
-  }
+      .badge svg {
+        width: 12px;
+        height: 12px;
+      }
 
-  /* Records preview */
-  .records-section {
-    display: none;
-    margin-top: 32px;
-  }
+      h1 {
+        font-size: clamp(32px, 6vw, 52px);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        color: var(--text);
+      }
 
-  .records-section.show { display: block; }
+      h1 span {
+        color: var(--accent);
+      }
 
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
+      .subtitle {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.6;
+        font-family: var(--mono);
+      }
 
-  .section-title {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
+      /* ── Drop zone ── */
+      .drop-zone {
+        border: 2px dashed var(--border-bright);
+        border-radius: 4px;
+        padding: 56px 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: var(--surface);
+        position: relative;
+        overflow: hidden;
+      }
 
-  .count-chip {
-    background: rgba(249,115,22,0.15);
-    color: var(--accent);
-    font-size: 12px;
-    font-family: var(--mono);
-    padding: 2px 10px;
-    border-radius: 99px;
-    font-weight: 500;
-  }
+      .drop-zone::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
 
-  .records-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--mono);
-    font-size: 12px;
-  }
+      .drop-zone:hover::before,
+      .drop-zone.dragging::before {
+        opacity: 1;
+      }
 
-  .records-table th {
-    text-align: left;
-    padding: 8px 12px;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-weight: 500;
-  }
+      .drop-zone:hover,
+      .drop-zone.dragging {
+        border-color: var(--accent);
+        background: var(--surface);
+      }
 
-  .records-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    word-break: break-all;
-    line-height: 1.4;
-  }
+      .drop-zone:hover,
+      .drop-zone.dragging {
+        background: var(--drop-active-bg);
+      }
 
-  .records-table tr:last-child td { border-bottom: none; }
-  .records-table tr:hover td { background: rgba(255,255,255,0.02); }
+      .drop-zone.dragging {
+        border-style: solid;
+        box-shadow: 0 0 0 4px var(--accent-subtle);
+      }
 
-  .type-badge {
-    display: inline-block;
-    background: rgba(249,115,22,0.12);
-    color: var(--accent);
-    border-radius: 2px;
-    padding: 1px 7px;
-    font-size: 11px;
-    font-weight: 500;
-  }
+      .drop-zone.has-file {
+        border-style: solid;
+        border-color: var(--success);
+        cursor: default;
+        padding: 28px 32px;
+      }
 
-  /* Output */
-  .output-section {
-    display: none;
-    margin-top: 32px;
-  }
+      .drop-zone.has-file::before {
+        background: radial-gradient(ellipse at 50% 0%, var(--success-glow) 0%, transparent 60%);
+        opacity: 1;
+      }
 
-  .output-section.show { display: block; }
+      .drop-icon {
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: center;
+        color: var(--muted);
+        transition: transform 0.2s;
+      }
 
-  .output-label {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+      .drop-icon svg {
+        width: 40px;
+        height: 40px;
+      }
 
-  .output-label::after {
-    content: 'BIND / RFC 1035';
-    font-size: 10px;
-    background: var(--border);
-    color: var(--muted);
-    padding: 2px 8px;
-    border-radius: 2px;
-    letter-spacing: 0.05em;
-  }
+      .drop-zone:hover .drop-icon,
+      .drop-zone.dragging .drop-icon {
+        transform: translateY(-4px);
+      }
 
-  .output-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 20px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: #a0a0c0;
-    line-height: 1.8;
-    white-space: pre;
-    overflow-x: auto;
-    max-height: 280px;
-    overflow-y: auto;
-  }
+      .drop-label {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
 
-  .output-box::-webkit-scrollbar { width: 6px; height: 6px; }
-  .output-box::-webkit-scrollbar-track { background: transparent; }
-  .output-box::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+      .drop-sub {
+        font-size: 13px;
+        color: var(--muted);
+        font-family: var(--mono);
+      }
 
-  /* Buttons */
-  .actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-    flex-wrap: wrap;
-  }
+      .drop-sub strong {
+        color: var(--accent);
+      }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 3px;
-    font-family: var(--head);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-    text-decoration: none;
-    letter-spacing: 0.02em;
-  }
+      .file-loaded-info {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+      }
 
-  .btn-primary {
-    background: var(--accent);
-    color: #000;
-  }
+      .drop-zone.has-file .file-loaded-info {
+        display: flex;
+      }
+      .drop-zone.has-file .drop-default {
+        display: none;
+      }
 
-  .btn-primary:hover {
-    background: var(--accent2);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(249,115,22,0.35);
-  }
+      .file-loaded-icon {
+        color: var(--success);
+        display: flex;
+        align-items: center;
+      }
 
-  .btn-ghost {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border-bright);
-  }
+      .file-loaded-icon svg {
+        width: 28px;
+        height: 28px;
+      }
 
-  .btn-ghost:hover {
-    color: var(--text);
-    border-color: var(--muted);
-    background: rgba(255,255,255,0.03);
-  }
+      .file-loaded-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--success);
+        font-family: var(--mono);
+      }
 
-  .btn-copy {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border-bright);
-    padding: 8px 16px;
-    font-size: 12px;
-  }
+      .file-change-btn {
+        background: transparent;
+        border: 1px solid var(--border-bright);
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 4px 12px;
+        border-radius: 2px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
 
-  .btn-copy:hover { color: var(--text); border-color: var(--muted); }
-  .btn-copy.copied { color: var(--success); border-color: var(--success); }
+      .file-change-btn:hover {
+        color: var(--text);
+        border-color: var(--muted);
+      }
 
-  /* Divider */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 40px 0;
-  }
+      #fileInput {
+        display: none;
+      }
 
-  /* How to use */
-  .how-to {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.8;
-  }
+      /* ── Status bar ── */
+      .status-bar {
+        display: none;
+        margin-top: 16px;
+        padding: 12px 16px;
+        border-radius: 3px;
+        font-family: var(--mono);
+        font-size: 13px;
+        gap: 10px;
+        align-items: center;
+      }
 
-  .how-to .step {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 10px;
-  }
+      .status-bar.show {
+        display: flex;
+      }
+      .status-bar svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+      }
 
-  .step-num {
-    color: var(--accent);
-    font-weight: 600;
-    flex-shrink: 0;
-    width: 20px;
-  }
+      .status-bar.ok {
+        background: var(--success-bg);
+        border: 1px solid var(--success-border);
+        color: var(--success);
+      }
 
-  /* Animations */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+      .status-bar.err {
+        background: var(--error-bg);
+        border: 1px solid var(--error-border);
+        color: var(--error);
+      }
 
-  .records-section.show,
-  .output-section.show {
-    animation: fadeIn 0.3s ease forwards;
-  }
-</style>
-</head>
-<body>
-<div class="container">
-  <header>
-    <img src="logos/logo.svg" alt="SES DKIM to Cloudflare" style="height:48px;margin-bottom:20px;display:block;">
-    <div class="badge">⚡ DNS Utility</div>
-    <h1>SES DKIM<br><span>→ Cloudflare</span></h1>
-    <p class="subtitle">Drop your AWS SES identity CSV. Get a Cloudflare-ready zone file instantly.</p>
-  </header>
+      /* ── Domain banner ── */
+      .domain-banner {
+        display: none;
+        margin-top: 16px;
+        padding: 10px 16px;
+        border-radius: 3px;
+        background: var(--accent-hover);
+        border: 1px solid var(--accent-border-subtle);
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--accent);
+        align-items: center;
+        gap: 10px;
+      }
 
-  <!-- Drop Zone -->
-  <div class="drop-zone" id="dropZone">
-    <span class="drop-icon">📄</span>
-    <div class="drop-label">Drop your CSV here</div>
-    <div class="drop-sub">or <strong>click to browse</strong> &nbsp;·&nbsp; expects <strong>Type, Name, Value</strong> columns</div>
-    <input type="file" id="fileInput" accept=".csv,text/csv">
-  </div>
+      .domain-banner.show {
+        display: flex;
+      }
+      .domain-banner svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+      }
 
-  <div class="status-bar" id="statusBar"></div>
+      .domain-banner-label {
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
 
-  <!-- Records Preview -->
-  <div class="records-section" id="recordsSection">
-    <div class="section-header">
-      <span class="section-title">Parsed Records</span>
-      <span class="count-chip" id="countChip"></span>
+      .domain-value {
+        font-weight: 500;
+        font-size: 15px;
+      }
+
+      /* ── Records ── */
+      .records-section {
+        display: none;
+        margin-top: 32px;
+      }
+      .records-section.show {
+        display: block;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .section-title {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .count-chip {
+        background: var(--accent-emphasis);
+        color: var(--accent);
+        font-size: 12px;
+        font-family: var(--mono);
+        padding: 2px 10px;
+        border-radius: 99px;
+        font-weight: 500;
+      }
+
+      .records-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      .records-table th {
+        text-align: left;
+        padding: 8px 12px;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      .records-table th:nth-child(1) {
+        width: 72px;
+      }
+      .records-table th:nth-child(2) {
+        width: 45%;
+      }
+      .records-table th:nth-child(3) {
+        width: auto;
+      }
+
+      .records-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+        line-height: 1.4;
+        vertical-align: top;
+      }
+
+      .records-table td:nth-child(1) {
+        white-space: nowrap;
+      }
+      .records-table td:nth-child(2),
+      .records-table td:nth-child(3) {
+        word-break: break-all;
+      }
+
+      .records-table tr:last-child td {
+        border-bottom: none;
+      }
+      .records-table tr:hover td {
+        background: var(--accent-grid);
+      }
+
+      .type-badge {
+        display: inline-block;
+        background: var(--accent-subtle);
+        color: var(--accent);
+        border-radius: 2px;
+        padding: 1px 7px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      /* ── Output ── */
+      .output-section {
+        display: none;
+        margin-top: 32px;
+      }
+      .output-section.show {
+        display: block;
+      }
+
+      .output-label {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .output-label::after {
+        content: "BIND / RFC 1035";
+        font-size: 10px;
+        background: var(--border);
+        color: var(--muted);
+        padding: 2px 8px;
+        border-radius: 2px;
+        letter-spacing: 0.05em;
+      }
+
+      .output-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 20px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--code-text);
+        line-height: 1.8;
+        white-space: pre;
+        overflow-x: auto;
+        max-height: 280px;
+        overflow-y: auto;
+      }
+
+      .output-box::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .output-box::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .output-box::-webkit-scrollbar-thumb {
+        background: var(--border-bright);
+        border-radius: 3px;
+      }
+
+      /* ── Buttons ── */
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 3px;
+        font-family: var(--head);
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+        text-decoration: none;
+        letter-spacing: 0.02em;
+      }
+
+      .btn svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: var(--on-accent);
+      }
+      .btn-primary svg {
+        color: var(--on-accent);
+      }
+
+      .btn-primary:hover {
+        background: var(--accent2);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px var(--accent-shadow);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--border-bright);
+      }
+
+      .btn-ghost:hover {
+        color: var(--text);
+        border-color: var(--muted);
+        background: var(--surface-hover);
+      }
+
+      .btn-danger {
+        background: transparent;
+        color: var(--error);
+        border: 1px solid var(--error-border-strong);
+      }
+
+      .btn-danger:hover {
+        background: var(--error-bg);
+        border-color: var(--error);
+      }
+
+      .btn-copy {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--border-bright);
+        padding: 8px 16px;
+        font-size: 12px;
+      }
+
+      .btn-copy svg {
+        width: 14px;
+        height: 14px;
+      }
+      .btn-copy:hover {
+        color: var(--text);
+        border-color: var(--muted);
+      }
+      .btn-copy.copied {
+        color: var(--success);
+        border-color: var(--success);
+      }
+
+      /* ── Divider ── */
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 40px 0;
+      }
+
+      /* ── How to ── */
+      .how-to {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      .how-to .step {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .step-num {
+        color: var(--accent);
+        font-weight: 600;
+        flex-shrink: 0;
+        width: 20px;
+      }
+
+      /* ── Animations ── */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .records-section.show,
+      .output-section.show {
+        animation: fadeIn 0.3s ease forwards;
+      }
+
+      @media (prefers-color-scheme: light) {
+        :root:not([data-theme="dark"]):not([data-theme="light"]) {
+          --bg: #f4f4f8;
+          --surface: #ffffff;
+          --border: #dddde8;
+          --border-bright: #c4c4d8;
+          --text: #1a1a2e;
+          --muted: #7070a0;
+          --code-text: #4a4a7a;
+          --surface-hover: rgba(0, 0, 0, 0.03);
+          --drop-active-bg: #fafafa;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="header-top">
+          <img src="logos/logo.svg" alt="SES DKIM to Cloudflare" style="height: 48px; display: block" />
+          <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+            <button class="theme-btn" data-theme-val="system" title="System"><i data-lucide="monitor"></i></button>
+            <button class="theme-btn" data-theme-val="light" title="Light"><i data-lucide="sun"></i></button>
+            <button class="theme-btn" data-theme-val="dark" title="Dark"><i data-lucide="moon"></i></button>
+          </div>
+        </div>
+        <div class="badge">
+          <i data-lucide="zap"></i>
+          DNS Utility
+        </div>
+        <h1>
+          SES DKIM
+          <br />
+          <span>→ Cloudflare</span>
+        </h1>
+        <p class="subtitle">Drop your AWS SES identity CSV. Get a Cloudflare-ready zone file instantly.</p>
+      </header>
+
+      <!-- Drop Zone -->
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-default">
+          <div class="drop-icon"><i data-lucide="file-text"></i></div>
+          <div class="drop-label">Drop your CSV here</div>
+          <div class="drop-sub">
+            or
+            <strong>click to browse</strong>
+            &nbsp;·&nbsp; expects
+            <strong>Type, Name, Value</strong>
+            columns
+          </div>
+        </div>
+        <div class="file-loaded-info">
+          <span class="file-loaded-icon"><i data-lucide="circle-check"></i></span>
+          <div>
+            <div class="file-loaded-name" id="loadedFileName"></div>
+            <div class="drop-sub" style="margin-top: 4px">file loaded successfully</div>
+          </div>
+          <button class="file-change-btn" id="changeFileBtn">change file</button>
+        </div>
+        <input type="file" id="fileInput" accept=".csv,text/csv" />
+      </div>
+
+      <div class="status-bar" id="statusBar"></div>
+      <div class="domain-banner" id="domainBanner">
+        <i data-lucide="globe"></i>
+        <span class="domain-banner-label">domain</span>
+        <span class="domain-value" id="domainValue"></span>
+      </div>
+
+      <!-- Records Preview -->
+      <div class="records-section" id="recordsSection">
+        <div class="section-header">
+          <span class="section-title">Parsed Records</span>
+          <span class="count-chip" id="countChip"></span>
+        </div>
+        <table class="records-table" id="recordsTable">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="recordsBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Output -->
+      <div class="output-section" id="outputSection">
+        <div class="output-label">Cloudflare Zone File Output</div>
+        <div class="output-box" id="outputBox"></div>
+        <div class="actions">
+          <button class="btn btn-primary" id="downloadBtn">
+            <i data-lucide="download"></i>
+            <span id="downloadBtnText">Download .txt Zone File</span>
+          </button>
+          <button class="btn btn-copy" id="copyBtn">
+            <i data-lucide="copy" id="copyIcon"></i>
+            <span id="copyBtnText">Copy</span>
+          </button>
+          <button class="btn btn-danger" id="clearBtn">
+            <i data-lucide="x"></i>
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="how-to">
+        <div class="step">
+          <span class="step-num">01</span>
+          <span>In AWS SES → Identities → your domain → DKIM → download the CSV file</span>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <span>Drop that CSV here. It will be validated and converted.</span>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <span>Download the .txt zone file — filename includes your domain name</span>
+        </div>
+        <div class="step">
+          <span class="step-num">04</span>
+          <span>In Cloudflare → DNS → Import DNS Records → upload the .txt file → Done</span>
+        </div>
+      </div>
     </div>
-    <table class="records-table" id="recordsTable">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Name</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      <tbody id="recordsBody"></tbody>
-    </table>
-  </div>
 
-  <!-- Output -->
-  <div class="output-section" id="outputSection">
-    <div class="output-label">Cloudflare Zone File Output</div>
-    <div class="output-box" id="outputBox"></div>
-    <div class="actions">
-      <button class="btn btn-primary" id="downloadBtn">⬇ Download .txt Zone File</button>
-      <button class="btn btn-copy" id="copyBtn">Copy</button>
-      <button class="btn btn-ghost" id="resetBtn">Reset</button>
-    </div>
-  </div>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+      // ── Inline SVG helper for dynamically injected icons ─────────────────────
+      const SVG = {
+        check: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+        x: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+        copy: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+      };
 
-  <div class="divider"></div>
+      // ── Theme ────────────────────────────────────────────────────────────────
+      const THEME_KEY = "ses-dkim-theme";
+      let currentTheme = localStorage.getItem(THEME_KEY) || "system";
 
-  <div class="how-to">
-    <div class="step"><span class="step-num">01</span><span>In AWS SES → Identities → your domain → DKIM → download the CSV file</span></div>
-    <div class="step"><span class="step-num">02</span><span>Drop that CSV here. It will be validated and converted.</span></div>
-    <div class="step"><span class="step-num">03</span><span>Download the .txt zone file</span></div>
-    <div class="step"><span class="step-num">04</span><span>In Cloudflare → DNS → Import DNS Records → upload the .txt file → Done ✓</span></div>
-  </div>
-</div>
+      function applyTheme(theme) {
+        currentTheme = theme;
+        if (theme === "system") {
+          document.documentElement.removeAttribute("data-theme");
+        } else {
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+        localStorage.setItem(THEME_KEY, theme);
+        document.querySelectorAll(".theme-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.themeVal === theme);
+        });
+      }
 
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
-<script>
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const statusBar = document.getElementById('statusBar');
-  const recordsSection = document.getElementById('recordsSection');
-  const countChip = document.getElementById('countChip');
-  const recordsBody = document.getElementById('recordsBody');
-  const outputSection = document.getElementById('outputSection');
-  const outputBox = document.getElementById('outputBox');
-  const downloadBtn = document.getElementById('downloadBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const resetBtn = document.getElementById('resetBtn');
+      applyTheme(currentTheme);
 
-  let generatedContent = '';
+      document.getElementById("themeToggle").addEventListener("click", (e) => {
+        const btn = e.target.closest(".theme-btn");
+        if (btn) applyTheme(btn.dataset.themeVal);
+      });
 
-  // Drag & drop
-  dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragging'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('dragging');
-    const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
-  });
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) processFile(fileInput.files[0]);
-  });
+      // ── DOM refs ─────────────────────────────────────────────────────────────
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("fileInput");
+      const changeFileBtn = document.getElementById("changeFileBtn");
+      const loadedFileName = document.getElementById("loadedFileName");
+      const statusBar = document.getElementById("statusBar");
+      const domainBanner = document.getElementById("domainBanner");
+      const domainValue = document.getElementById("domainValue");
+      const recordsSection = document.getElementById("recordsSection");
+      const countChip = document.getElementById("countChip");
+      const recordsBody = document.getElementById("recordsBody");
+      const outputSection = document.getElementById("outputSection");
+      const outputBox = document.getElementById("outputBox");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const downloadBtnText = document.getElementById("downloadBtnText");
+      const copyBtn = document.getElementById("copyBtn");
+      const copyIcon = document.getElementById("copyIcon");
+      const copyBtnText = document.getElementById("copyBtnText");
+      const clearBtn = document.getElementById("clearBtn");
 
-  function showStatus(msg, isError) {
-    statusBar.className = 'status-bar show ' + (isError ? 'err' : 'ok');
-    statusBar.innerHTML = `<span>${isError ? '✗' : '✓'}</span><span>${msg}</span>`;
-  }
+      let generatedContent = "";
+      let detectedDomain = "";
 
-  function processFile(file) {
-    if (!file.name.endsWith('.csv') && file.type !== 'text/csv') {
-      showStatus('File must be a .csv — this looks like something else.', true);
-      return;
-    }
+      // ── Drag & drop ──────────────────────────────────────────────────────────
+      dropZone.addEventListener("click", (e) => {
+        if (e.target === changeFileBtn || dropZone.classList.contains("has-file")) return;
+        fileInput.click();
+      });
 
-    const reader = new FileReader();
-    reader.onload = e => parseCSV(e.target.result, file.name);
-    reader.readAsText(file);
-  }
+      changeFileBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
 
-  function parseCSV(text, filename) {
-    const { data, errors: parseErrors, meta } = Papa.parse(text, {
-      header: true,
-      skipEmptyLines: true,
-    });
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragging");
+      });
 
-    const cols = meta.fields.map(f => f.toLowerCase());
-    if (!cols.includes('type') || !cols.includes('name') || !cols.includes('value')) {
-      showStatus('Missing required columns. Expected: Type, Name, Value', true);
-      return;
-    }
+      dropZone.addEventListener("dragleave", (e) => {
+        if (!dropZone.contains(e.relatedTarget)) {
+          dropZone.classList.remove("dragging");
+        }
+      });
 
-    const validTypes = ['CNAME', 'TXT', 'A', 'MX', 'AAAA'];
-    const records = [];
-    const errors = [];
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragging");
+        const file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+      });
 
-    data.forEach((row, i) => {
-      const type = (row['Type'] || row['type'] || '').trim().toUpperCase();
-      const name = (row['Name'] || row['name'] || '').trim();
-      const value = (row['Value'] || row['value'] || '').trim();
+      fileInput.addEventListener("change", () => {
+        if (fileInput.files[0]) processFile(fileInput.files[0]);
+      });
 
-      if (!type || !name || !value) { errors.push(`Row ${i + 2}: empty field`); return; }
-      if (!validTypes.includes(type)) { errors.push(`Row ${i + 2}: unknown record type "${type}"`); return; }
+      // ── Status ───────────────────────────────────────────────────────────────
+      function showStatus(msg, isError) {
+        statusBar.className = "status-bar show " + (isError ? "err" : "ok");
+        statusBar.innerHTML = (isError ? SVG.x : SVG.check) + `<span>${msg}</span>`;
+      }
 
-      records.push({ type, name, value });
-    });
+      // ── Domain extraction ────────────────────────────────────────────────────
+      function extractDomain(records) {
+        for (const r of records) {
+          const m = r.name.match(/\._domainkey\.([^.\s]+(?:\.[^.\s]+)+)\.?$/i);
+          if (m) return m[1];
+        }
+        const parts = records.map((r) => r.name.replace(/\.$/, "").split(".").reverse());
+        if (!parts.length) return "";
+        let common = [];
+        for (let i = 0; ; i++) {
+          const seg = parts[0][i];
+          if (!seg) break;
+          if (parts.every((p) => p[i] === seg)) common.unshift(seg);
+          else break;
+        }
+        return common.length >= 2 ? common.join(".") : "";
+      }
 
-    if (records.length === 0) {
-      showStatus(`No valid records found. ${errors.length ? 'Errors: ' + errors.join('; ') : ''}`, true);
-      return;
-    }
+      // ── Process file ─────────────────────────────────────────────────────────
+      function processFile(file) {
+        if (!file.name.endsWith(".csv") && file.type !== "text/csv") {
+          showStatus("File must be a .csv — this looks like something else.", true);
+          dropZone.classList.remove("has-file");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => parseCSV(e.target.result, file.name);
+        reader.readAsText(file);
+      }
 
-    showStatus(`${records.length} record${records.length > 1 ? 's' : ''} parsed successfully from "${filename}"`, false);
-    renderRecords(records);
-    generateZoneFile(records, filename);
-  }
+      function parseCSV(text, filename) {
+        const { data, meta } = Papa.parse(text, { header: true, skipEmptyLines: true });
 
-  function renderRecords(records) {
-    recordsBody.innerHTML = '';
-    records.forEach(r => {
-      const tr = document.createElement('tr');
-      const shortValue = r.value.length > 55 ? r.value.slice(0, 55) + '…' : r.value;
-      const escapedValue = r.value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-      tr.innerHTML = `
+        const cols = meta.fields.map((f) => f.toLowerCase());
+        if (!cols.includes("type") || !cols.includes("name") || !cols.includes("value")) {
+          showStatus("Missing required columns. Expected: Type, Name, Value", true);
+          dropZone.classList.remove("has-file");
+          return;
+        }
+
+        const validTypes = ["CNAME", "TXT", "A", "MX", "AAAA"];
+        const records = [];
+        const errors = [];
+
+        data.forEach((row, i) => {
+          const type = (row["Type"] || row["type"] || "").trim().toUpperCase();
+          const name = (row["Name"] || row["name"] || "").trim();
+          const value = (row["Value"] || row["value"] || "").trim();
+
+          if (!type || !name || !value) {
+            errors.push(`Row ${i + 2}: empty field`);
+            return;
+          }
+          if (!validTypes.includes(type)) {
+            errors.push(`Row ${i + 2}: unknown record type "${type}"`);
+            return;
+          }
+
+          records.push({ type, name, value });
+        });
+
+        if (records.length === 0) {
+          showStatus(`No valid records found. ${errors.length ? "Errors: " + errors.join("; ") : ""}`, true);
+          dropZone.classList.remove("has-file");
+          return;
+        }
+
+        loadedFileName.textContent = filename;
+        dropZone.classList.add("has-file");
+
+        detectedDomain = extractDomain(records);
+
+        showStatus(`${records.length} record${records.length > 1 ? "s" : ""} parsed from "${filename}"`, false);
+
+        if (detectedDomain) {
+          domainValue.textContent = detectedDomain;
+          domainBanner.className = "domain-banner show";
+        } else {
+          domainBanner.className = "domain-banner";
+        }
+
+        renderRecords(records);
+        generateZoneFile(records, filename, detectedDomain);
+      }
+
+      function renderRecords(records) {
+        recordsBody.innerHTML = "";
+        records.forEach((r) => {
+          const tr = document.createElement("tr");
+          const shortValue = r.value.length > 55 ? r.value.slice(0, 55) + "…" : r.value;
+          const escapedValue = r.value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+          tr.innerHTML = `
         <td><span class="type-badge">${r.type}</span></td>
         <td>${r.name}</td>
         <td title="${escapedValue}">${shortValue}</td>
       `;
-      recordsBody.appendChild(tr);
-    });
-    countChip.textContent = `${records.length} records`;
-    recordsSection.className = 'records-section show';
-  }
+          recordsBody.appendChild(tr);
+        });
+        countChip.textContent = `${records.length} records`;
+        recordsSection.className = "records-section show";
+      }
 
-  function generateZoneFile(records, filename) {
-    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
-    const srcName = filename.replace('.csv', '');
+      function generateZoneFile(records, filename, domain) {
+        const now = new Date().toISOString().replace("T", " ").slice(0, 19);
+        const domLine = domain ? `\n;; Domain:  ${domain}` : "";
 
-    let out = `;; Cloudflare DNS Import File\n`;
-    out += `;; Generated by SES DKIM → Cloudflare Converter\n`;
-    out += `;; Source: ${filename}\n`;
-    out += `;; Date: ${now}\n`;
-    out += `;;\n`;
+        let out = `;; Cloudflare DNS Import File`;
+        out += `\n;; Generated by SES DKIM → Cloudflare Converter`;
+        out += `\n;; Source:   ${filename}`;
+        out += domLine;
+        out += `\n;; Date:     ${now}\n;;\n`;
 
-    // Group by type
-    const byType = {};
-    records.forEach(r => {
-      if (!byType[r.type]) byType[r.type] = [];
-      byType[r.type].push(r);
-    });
+        const byType = {};
+        records.forEach((r) => {
+          if (!byType[r.type]) byType[r.type] = [];
+          byType[r.type].push(r);
+        });
 
-    for (const type of Object.keys(byType).sort()) {
-      out += `\n;; ${type} Records\n`;
-      byType[type].forEach(r => {
-        // Ensure name ends with dot (FQDN)
-        let name = r.name;
-        if (!name.endsWith('.')) name += '.';
+        for (const type of Object.keys(byType).sort()) {
+          out += `\n;; ${type} Records\n`;
+          byType[type].forEach((r) => {
+            let name = r.name;
+            if (!name.endsWith(".")) name += ".";
+            let value = r.value;
+            if (type === "CNAME" && !value.endsWith(".")) value += ".";
+            if (type === "TXT" && !value.startsWith('"')) value = `"${value}"`;
+            out += `${name}\t1\tIN\t${type}\t${value}\n`;
+          });
+        }
 
-        // For CNAME, value must also end with dot
-        let value = r.value;
-        if (type === 'CNAME' && !value.endsWith('.')) value += '.';
+        generatedContent = out;
+        outputBox.textContent = out;
+        outputSection.className = "output-section show";
 
-        // TXT values need quoting
-        if (type === 'TXT' && !value.startsWith('"')) value = `"${value}"`;
+        downloadBtnText.textContent = domain
+          ? `Download cloudflare-dns-import-${domain}.txt`
+          : "Download .txt Zone File";
+      }
 
-        out += `${name}\t1\tIN\t${type}\t${value}\n`;
+      // ── Download ─────────────────────────────────────────────────────────────
+      downloadBtn.addEventListener("click", () => {
+        if (!generatedContent) return;
+        const blob = new Blob([generatedContent], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = detectedDomain ? `cloudflare-dns-import-${detectedDomain}.txt` : "cloudflare-dns-import.txt";
+        a.click();
+        URL.revokeObjectURL(url);
       });
-    }
 
-    generatedContent = out;
-    outputBox.textContent = out;
-    outputSection.className = 'output-section show';
-  }
+      // ── Copy ─────────────────────────────────────────────────────────────────
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(generatedContent).then(() => {
+          copyIcon.setAttribute("data-lucide", "check");
+          lucide.createIcons({ nodes: [copyIcon] });
+          copyBtnText.textContent = "Copied";
+          copyBtn.classList.add("copied");
+          setTimeout(() => {
+            copyIcon.setAttribute("data-lucide", "copy");
+            lucide.createIcons({ nodes: [copyIcon] });
+            copyBtnText.textContent = "Copy";
+            copyBtn.classList.remove("copied");
+          }, 2000);
+        });
+      });
 
-  // Download
-  downloadBtn.addEventListener('click', () => {
-    if (!generatedContent) return;
-    const blob = new Blob([generatedContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'cloudflare-dns-import.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
+      // ── Clear ─────────────────────────────────────────────────────────────────
+      function clearAll() {
+        fileInput.value = "";
+        generatedContent = "";
+        detectedDomain = "";
+        statusBar.className = "status-bar";
+        domainBanner.className = "domain-banner";
+        recordsSection.className = "records-section";
+        outputSection.className = "output-section";
+        recordsBody.innerHTML = "";
+        outputBox.textContent = "";
+        dropZone.classList.remove("has-file", "dragging");
+        downloadBtnText.textContent = "Download .txt Zone File";
+      }
 
-  // Copy
-  copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(generatedContent).then(() => {
-      copyBtn.textContent = 'Copied ✓';
-      copyBtn.classList.add('copied');
-      setTimeout(() => {
-        copyBtn.textContent = 'Copy';
-        copyBtn.classList.remove('copied');
-      }, 2000);
-    });
-  });
+      clearBtn.addEventListener("click", clearAll);
 
-  // Reset
-  resetBtn.addEventListener('click', () => {
-    fileInput.value = '';
-    generatedContent = '';
-    statusBar.className = 'status-bar';
-    recordsSection.className = 'records-section';
-    outputSection.className = 'output-section';
-    recordsBody.innerHTML = '';
-    outputBox.textContent = '';
-  });
-</script>
-</body>
+      // ── Init Lucide ───────────────────────────────────────────────────────────
+      lucide.createIcons();
+    </script>
+  </body>
 </html>

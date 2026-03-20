@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Banner – SES DKIM → Cloudflare</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0a0a0f;
+        --bg2: #0d0d14;
+        --surface: #111118;
+        --border: #1e1e2e;
+        --border-bright: #2e2e4e;
+        --accent: #f97316;
+        --text: #e8e8f0;
+        --muted: #6b6b8a;
+        --code-text: #6b6b8a;
+        --code-comment: #4a4a6a;
+        --code-name: #a0a0c0;
+        --code-ln: #2e2e4e;
+        --success: #22c55e;
+        --glow1: rgba(249, 115, 22, 0.12);
+        --glow2: rgba(249, 115, 22, 0.07);
+        --grid-line: rgba(249, 115, 22, 0.04);
+        --watermark: #2e2e4e;
+        --chip-bg: #111118;
+        --chip-border: #1e1e2e;
+        --chip-text: #a0a0c0;
+        --shadow: rgba(0, 0, 0, 0.6);
+        --window-glow: rgba(249, 115, 22, 0.08);
+      }
+
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f4f4f8;
+          --bg2: #eaeaf0;
+          --surface: #ffffff;
+          --border: #dddde8;
+          --border-bright: #c4c4d8;
+          --text: #1a1a2e;
+          --muted: #7070a0;
+          --code-text: #7070a0;
+          --code-comment: #9090b0;
+          --code-name: #4a4a7a;
+          --code-ln: #c4c4d8;
+          --glow1: rgba(249, 115, 22, 0.08);
+          --glow2: rgba(249, 115, 22, 0.05);
+          --grid-line: rgba(249, 115, 22, 0.06);
+          --watermark: #c4c4d8;
+          --chip-bg: #f0f0f6;
+          --chip-border: #dddde8;
+          --chip-text: #505080;
+          --shadow: rgba(0, 0, 0, 0.12);
+          --window-glow: rgba(249, 115, 22, 0.06);
+        }
+      }
+
+      body {
+        width: 2048px;
+        height: 1024px;
+        overflow: hidden;
+        background: var(--bg);
+        font-family: "Syne", sans-serif;
+        color: var(--text);
+        position: relative;
+      }
+
+      /* Grid background */
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 64px 64px;
+      }
+
+      /* Glow blobs */
+      .glow-left {
+        position: absolute;
+        top: -200px;
+        left: -100px;
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, var(--glow1) 0%, transparent 70%);
+        pointer-events: none;
+      }
+
+      .glow-right {
+        position: absolute;
+        bottom: -200px;
+        right: 600px;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, var(--glow2) 0%, transparent 70%);
+        pointer-events: none;
+      }
+
+      /* Layout */
+      .layout {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        height: 100%;
+      }
+
+      /* ── Left panel ── */
+      .left {
+        flex: 0 0 1060px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 96px 80px 80px 100px;
+      }
+
+      .logo-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 52px;
+      }
+
+      .logo-row img {
+        height: 64px;
+      }
+
+      .logo-divider {
+        width: 1px;
+        height: 48px;
+        background: var(--border-bright);
+      }
+
+      .logo-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 18px;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(249, 115, 22, 0.12);
+        border: 1px solid rgba(249, 115, 22, 0.35);
+        color: var(--accent);
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 8px 20px;
+        border-radius: 3px;
+        margin-bottom: 32px;
+        width: fit-content;
+      }
+
+      .badge-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      h1 {
+        font-size: 92px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: var(--text);
+        margin-bottom: 12px;
+      }
+
+      h1 .arrow {
+        color: var(--accent);
+        display: block;
+      }
+
+      .subtitle {
+        font-size: 28px;
+        font-weight: 400;
+        color: var(--muted);
+        font-family: "IBM Plex Mono", monospace;
+        line-height: 1.5;
+        margin-top: 24px;
+        max-width: 780px;
+      }
+
+      .features {
+        display: flex;
+        gap: 16px;
+        margin-top: 52px;
+        flex-wrap: wrap;
+      }
+
+      .feature-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--chip-bg);
+        border: 1px solid var(--chip-border);
+        border-radius: 3px;
+        padding: 10px 20px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 18px;
+        color: var(--code-name);
+      }
+
+      .chip-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        flex-shrink: 0;
+      }
+
+      /* ── Right panel ── */
+      .right {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 80px 80px 40px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .code-window {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border-bright);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow:
+          0 32px 80px var(--shadow),
+          0 0 0 1px var(--window-glow);
+      }
+
+      .window-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 18px 24px;
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .win-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+      }
+
+      .win-dot.red {
+        background: #ff5f57;
+      }
+      .win-dot.yellow {
+        background: #febc2e;
+      }
+      .win-dot.green {
+        background: #28c840;
+      }
+
+      .window-title {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 16px;
+        color: var(--muted);
+        margin-left: 12px;
+      }
+
+      .code-body {
+        padding: 32px 36px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 18px;
+        line-height: 1.9;
+        color: var(--code-text);
+      }
+
+      .code-line {
+        display: flex;
+        gap: 20px;
+        white-space: nowrap;
+      }
+
+      .ln {
+        color: var(--code-ln);
+        width: 28px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .c {
+        color: var(--code-comment);
+      } /* comment */
+      .kw {
+        color: var(--accent);
+      } /* keyword / type */
+      .nm {
+        color: var(--code-name);
+      } /* name */
+      .vl {
+        color: var(--success);
+      } /* value */
+
+      /* Bottom watermark */
+      .watermark {
+        position: absolute;
+        bottom: 48px;
+        left: 100px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 18px;
+        color: var(--watermark);
+        letter-spacing: 0.06em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid"></div>
+    <div class="glow-left"></div>
+    <div class="glow-right"></div>
+
+    <div class="layout">
+      <!-- Left -->
+      <div class="left">
+        <div class="logo-row">
+          <img src="logos/logo.svg" alt="Logo" />
+          <div class="logo-divider"></div>
+          <span class="logo-label">free · open source · browser-only</span>
+        </div>
+
+        <div class="badge">
+          <span class="badge-dot"></span>
+          DNS Utility
+        </div>
+
+        <h1>
+          SES DKIM
+          <span class="arrow">→ Cloudflare</span>
+        </h1>
+
+        <p class="subtitle">
+          Drop your AWS SES CSV.
+          <br />
+          Get a Cloudflare zone file — instantly.
+        </p>
+
+        <div class="features">
+          <div class="feature-chip">
+            <span class="chip-dot"></span>
+            Drag &amp; drop CSV
+          </div>
+          <div class="feature-chip">
+            <span class="chip-dot"></span>
+            Domain detection
+          </div>
+          <div class="feature-chip">
+            <span class="chip-dot"></span>
+            BIND / RFC 1035 format
+          </div>
+          <div class="feature-chip">
+            <span class="chip-dot"></span>
+            Zero upload · 100% local
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="right">
+        <div class="code-window">
+          <div class="window-bar">
+            <div class="win-dot red"></div>
+            <div class="win-dot yellow"></div>
+            <div class="win-dot green"></div>
+            <span class="window-title">cloudflare-dns-import-example.com.txt</span>
+          </div>
+          <div class="code-body">
+            <div class="code-line">
+              <span class="ln">1</span>
+              <span class="c">;; Cloudflare DNS Import File</span>
+            </div>
+            <div class="code-line">
+              <span class="ln">2</span>
+              <span class="c">;; Generated by SES DKIM → Cloudflare</span>
+            </div>
+            <div class="code-line">
+              <span class="ln">3</span>
+              <span class="c">;; Domain: example.com</span>
+            </div>
+            <div class="code-line">
+              <span class="ln">4</span>
+              <span class="c">;; Date: 2025-01-01 00:00:00</span>
+            </div>
+            <div class="code-line">
+              <span class="ln">5</span>
+              <span class="c">;;</span>
+            </div>
+            <div class="code-line">
+              <span class="ln">6</span>
+              &nbsp;
+            </div>
+            <div class="code-line">
+              <span class="ln">7</span>
+              <span class="c">;; CNAME Records</span>
+            </div>
+            <div class="code-line">
+              <span class="ln">8</span>
+              <span class="nm">zey4t3k7._domainkey.example.com.</span>
+              <span class="kw">1 IN CNAME</span>
+            </div>
+            <div class="code-line">
+              <span class="ln"></span>
+              <span class="vl">zey4t3k7.dkim.amazonses.com.</span>
+            </div>
+            <div class="code-line">
+              <span class="ln">9</span>
+              <span class="nm">2wozuady._domainkey.example.com.</span>
+              <span class="kw">1 IN CNAME</span>
+            </div>
+            <div class="code-line">
+              <span class="ln"></span>
+              <span class="vl">2wozuady.dkim.amazonses.com.</span>
+            </div>
+            <div class="code-line">
+              <span class="ln">10</span>
+              <span class="nm">zvtgr4yu._domainkey.example.com.</span>
+              <span class="kw">1 IN CNAME</span>
+            </div>
+            <div class="code-line">
+              <span class="ln"></span>
+              <span class="vl">zvtgr4yu.dkim.amazonses.com.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="watermark">github.com/faizananwerali/ses-dkim-to-cloudflare</div>
+  </body>
+</html>
